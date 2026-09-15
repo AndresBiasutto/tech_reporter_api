@@ -5,7 +5,7 @@
   "description": "REST API for technical service reports.",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "dev": "nodemon --watch src --ext ts --exec ts-node --files src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest --runInBand"

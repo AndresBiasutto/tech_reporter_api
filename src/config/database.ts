@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Sequelize } from 'sequelize';
-import { Client, Company, Role, TechIssue, TechReport, TechStaff } from '../models';
+import { Client, Company, Role, TechIssue, TechReport, TechStaff, User } from '../models';
+import { seedCompany } from '../seeders/company.seeder';
 
 const port = Number(process.env.DB_PORT ?? 5432);
 
@@ -14,6 +15,7 @@ export const sequelize = new Sequelize({
   logging: false
 });
 
+User.initialize(sequelize);
 Company.initialize(sequelize);
 Role.initialize(sequelize);
 Client.initialize(sequelize);
@@ -23,6 +25,12 @@ TechReport.initialize(sequelize);
 
 Company.hasMany(Client, { foreignKey: 'id_company', as: 'clients' });
 Client.belongsTo(Company, { foreignKey: 'id_company', as: 'company' });
+User.hasOne(Company, { foreignKey: 'id_company', as: 'companyProfile' });
+Company.belongsTo(User, { foreignKey: 'id_company', as: 'user' });
+User.hasOne(Client, { foreignKey: 'id_client', as: 'clientProfile' });
+Client.belongsTo(User, { foreignKey: 'id_client', as: 'user' });
+User.hasOne(TechStaff, { foreignKey: 'id_tech_staff', as: 'techStaffProfile' });
+TechStaff.belongsTo(User, { foreignKey: 'id_tech_staff', as: 'user' });
 Role.hasMany(Client, { foreignKey: 'id_role', as: 'clients' });
 Client.belongsTo(Role, { foreignKey: 'id_role', as: 'role' });
 Role.hasMany(TechStaff, { foreignKey: 'id_role', as: 'techStaffMembers' });
@@ -51,5 +59,6 @@ export async function connectDatabase(): Promise<void> {
 
   if (process.env.DB_SYNC_MODE === 'alter') {
     await sequelize.sync({ alter: true });
+    await seedCompany();
   }
 }

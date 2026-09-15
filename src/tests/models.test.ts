@@ -1,14 +1,21 @@
-import { Client, Company, Role, TechIssue, TechReport, TechStaff } from '../models';
+import { Client, Company, Role, TechIssue, TechReport, TechStaff, User } from '../models';
 import '../config/database';
 
 describe('Sequelize model definitions', () => {
-  it('declares the expected primary keys and credential constraints', () => {
+  it('declares UUID primary keys and keeps credentials only in User', () => {
     expect(Company.getAttributes().id_company.primaryKey).toBe(true);
     expect(Client.getAttributes().id_client.primaryKey).toBe(true);
     expect(TechStaff.getAttributes().id_tech_staff.primaryKey).toBe(true);
-    expect(Company.getAttributes().e_mail.unique).toBe(true);
-    expect(Client.getAttributes().e_mail.unique).toBe(true);
-    expect(TechStaff.getAttributes().e_mail.unique).toBe(true);
+    expect(String(User.getAttributes().id_user.type)).toBe('UUID');
+    expect(String(Role.getAttributes().id_role.type)).toBe('UUID');
+    expect(String(TechIssue.getAttributes().id_tech_issue.type)).toBe('UUID');
+    expect(String(TechReport.getAttributes().id_tech_report.type)).toBe('UUID');
+    expect(String(Client.getAttributes().id_company.type)).toBe('UUID');
+    expect(String(TechStaff.getAttributes().id_client.type)).toBe('UUID');
+    expect(User.getAttributes().e_mail.unique).toBe(true);
+    expect(Company.getAttributes()).not.toHaveProperty('password');
+    expect(Client.getAttributes()).not.toHaveProperty('e_mail');
+    expect(TechStaff.getAttributes()).not.toHaveProperty('phone');
   });
 
   it('keeps only the approved fields nullable', () => {
@@ -25,5 +32,8 @@ describe('Sequelize model definitions', () => {
     expect(Client.associations.techIssues.target).toBe(TechIssue);
     expect(TechStaff.associations.techReports.target).toBe(TechReport);
     expect(TechIssue.associations.techReports.target).toBe(TechReport);
+    expect(User.associations.companyProfile.target).toBe(Company);
+    expect(User.associations.clientProfile.target).toBe(Client);
+    expect(User.associations.techStaffProfile.target).toBe(TechStaff);
   });
 });
