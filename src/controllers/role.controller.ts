@@ -4,6 +4,11 @@ import { RoleService } from '../services/role.service';
 
 const roles = new RoleService();
 
+export async function getRole(request: Request, response: Response): Promise<void> {
+  const role = await roles.get(request.params.id);
+  response.status(200).json({ role: toRoleResponse(role) });
+}
+
 export async function listRoles(_request: Request, response: Response): Promise<void> {
   const result = await roles.list();
   response.status(200).json({ roles: result.map(toRoleResponse) });

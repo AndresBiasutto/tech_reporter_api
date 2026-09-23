@@ -6,8 +6,11 @@ import morgan from 'morgan';
 import { errorHandler } from './middlewares/error.middleware';
 import { authRouter } from './routes/auth.routes';
 import { clientRouter } from './routes/client.routes';
+import { companyRouter } from './routes/company.routes';
 import { roleRouter } from './routes/role.routes';
 import { techStaffRouter } from './routes/tech-staff.routes';
+import { techIssueRouter } from './routes/tech-issue.routes';
+import { techReportRouter } from './routes/tech-report.routes';
 
 export const app = express();
 const cookieSecret = process.env.COOKIE_SECRET;
@@ -27,8 +30,11 @@ app.get('/health', (_request, response) => {
 });
 
 app.use('/auth', authRouter);
+app.use('/companies', companyRouter);
 app.use('/clients', clientRouter);
 app.use('/tech-staff', techStaffRouter);
+app.use('/tech-issues', techIssueRouter);
+app.use('/tech-reports', techReportRouter);
 app.use('/roles', roleRouter);
 
 app.use(errorHandler);

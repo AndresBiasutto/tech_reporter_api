@@ -1,9 +1,15 @@
 import { DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from 'sequelize';
+import type { Client } from './client.model';
+import type { Role } from './role.model';
+import type { User } from './user.model';
 
 export class TechStaff extends Model<InferAttributes<TechStaff>, InferCreationAttributes<TechStaff>> {
   declare id_tech_staff: string;
   declare id_role: string;
   declare id_client: string;
+  declare user?: User;
+  declare role?: Role;
+  declare client?: Client;
 
   static initialize(sequelize: Sequelize): void {
     TechStaff.init(

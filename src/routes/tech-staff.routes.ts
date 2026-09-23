@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { assignTechStaffRole, createTechStaff, deleteTechStaff } from '../controllers/company-account.controller';
+import { getTechStaffById } from '../controllers/company-resource.controller';
+import { listTechStaff } from '../controllers/visibility.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { asyncHandler } from '../middlewares/async-handler.middleware';
 import { requireAccountType } from '../middlewares/account-type.middleware';
@@ -8,6 +10,8 @@ import { validateCreateTechStaff, validateRoleAssignment } from '../validators/c
 
 export const techStaffRouter = Router();
 
+techStaffRouter.get('/', authenticate, requireAccountType('company', 'client'), asyncHandler(listTechStaff));
+techStaffRouter.get('/:id', authenticate, validateUuidParam('id'), requireAccountType('company', 'client', 'tech_staff'), asyncHandler(getTechStaffById));
 techStaffRouter.post('/', authenticate, validateBody(validateCreateTechStaff), requireAccountType('company'), asyncHandler(createTechStaff));
 techStaffRouter.patch('/:id/role', authenticate, validateBody(validateRoleAssignment), validateUuidParam('id'), requireAccountType('company'), asyncHandler(assignTechStaffRole));
 techStaffRouter.delete('/:id', authenticate, validateUuidParam('id'), requireAccountType('company'), asyncHandler(deleteTechStaff));

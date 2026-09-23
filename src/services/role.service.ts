@@ -14,6 +14,12 @@ export class RoleService {
     return this.roles.findAll();
   }
 
+  async get(id: string): Promise<Role> {
+    const role = await this.roles.findById(id);
+    if (!role) throw new NotFoundError('Role not found');
+    return role;
+  }
+
   async create(name: string): Promise<Role> {
     if (await this.roles.findByName(name)) throw new ConflictError('Role name is already in use');
     return this.roles.create(name);
