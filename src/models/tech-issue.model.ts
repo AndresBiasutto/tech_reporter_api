@@ -1,4 +1,5 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from 'sequelize';
+import type { Client } from './client.model';
 
 export class TechIssue extends Model<InferAttributes<TechIssue>, InferCreationAttributes<TechIssue>> {
   declare id_tech_issue: CreationOptional<string>;
@@ -7,6 +8,7 @@ export class TechIssue extends Model<InferAttributes<TechIssue>, InferCreationAt
   declare issue_description: string;
   declare issue_status: string;
   declare id_client: string;
+  declare client?: Client;
 
   static initialize(sequelize: Sequelize): void {
     TechIssue.init(

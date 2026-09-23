@@ -1,4 +1,6 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from 'sequelize';
+import type { TechIssue } from './tech-issue.model';
+import type { TechStaff } from './tech-staff.model';
 
 export class TechReport extends Model<InferAttributes<TechReport>, InferCreationAttributes<TechReport>> {
   declare id_tech_report: CreationOptional<string>;
@@ -7,6 +9,8 @@ export class TechReport extends Model<InferAttributes<TechReport>, InferCreation
   declare date_end: Date | null;
   declare id_tech_staff: string;
   declare id_tech_issue: string;
+  declare techStaffMember?: TechStaff;
+  declare techIssue?: TechIssue;
 
   static initialize(sequelize: Sequelize): void {
     TechReport.init(
