@@ -24,6 +24,10 @@ export class UserRepository {
   findByEmail(email: string, transaction?: Transaction): Promise<User | null> {
     return User.findOne({ where: { e_mail: email }, transaction });
   }
+  updateProfile(
+    user: User, data: UpdateUserData, transaction?: Transaction): Promise<User> {
+    return user.update(data, { transaction });
+  }
 
   create(data: CreateUserData, transaction?: Transaction): Promise<User> {
     return User.create(

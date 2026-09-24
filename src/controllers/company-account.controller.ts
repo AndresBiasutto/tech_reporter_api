@@ -9,7 +9,20 @@ export async function createClient(request: Request, response: Response): Promis
   const account = await companyAccounts.createClient(request.auth!.userId, { name, email, phone, password, roleId });
   response.status(201).json({ user: toAccountResponse(account.user, account.roleId) });
 }
+export async function updateClient(request: Request, response: Response): Promise<void> {
+  const { name, email, phone } = request.body as Record<string, string | undefined>;
 
+  const account = await companyAccounts.updateClient(
+    request.auth!.userId,
+    request.auth!.accountType,
+    request.params.id,
+    { name, email, phone }
+  );
+
+  response.status(200).json({
+    user: toAccountResponse(account.user, account.roleId)
+  });
+}
 export async function createTechStaff(request: Request, response: Response): Promise<void> {
   const { name, email, phone, password, roleId, clientId } = request.body as Record<string, string>;
   const account = await companyAccounts.createTechStaff({ name, email, phone, password, roleId, clientId });

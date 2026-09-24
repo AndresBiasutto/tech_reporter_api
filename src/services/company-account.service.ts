@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
 import { sequelize } from '../config/database';
-import { User } from '../models';
+import { AccountType, User } from '../models';
 import { ClientRepository } from '../repositories/client.repository';
 import { RoleRepository } from '../repositories/role.repository';
 import { TechIssueRepository } from '../repositories/tech-issue.repository';
 import { TechReportRepository } from '../repositories/tech-report.repository';
 import { TechStaffRepository } from '../repositories/tech-staff.repository';
 import { UserRepository } from '../repositories/user.repository';
-import { ConflictError, NotFoundError } from '../utils/errors';
+import { ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
 
 export interface CreateManagedAccountData {
   name: string;
@@ -16,7 +16,11 @@ export interface CreateManagedAccountData {
   password: string;
   roleId: string;
 }
-
+export interface UpdateClientData {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
 export class CompanyAccountService {
   private readonly users = new UserRepository();
   private readonly roles = new RoleRepository();
@@ -37,7 +41,49 @@ export class CompanyAccountService {
       return { user, roleId: data.roleId };
     });
   }
+ async updateClient(
+    actorId: string,
+    actorAccountType: AccountType,
+    clientId: string,
+    data: UpdateClientData
+  ): Promise<{ user: User; roleId: string }> {
+    return sequelize.transaction(async (transaction) => {
+      const client = await this.clients.findById(clientId, transaction);
 
+      if (!client) throw new NotFoundError('Client not found');
+
+      if (actorAccountType === 'client' && client.id_client !== actorId) {
+        throw new ForbiddenError('You can only modify your own account');
+      }
+
+      if (actorAccountType === 'company' && client.id_company !== actorId) {
+        throw new ForbiddenError('You can only modify clients from your company');
+      }
+
+      const user = await this.users.findById(client.id_client, transaction);
+
+      if (!user) throw new NotFoundError('Client user not found');
+
+      if (data.email && data.email !== user.e_mail) {
+        await this.assertAvailableEmail(data.email, transaction);
+      }
+
+      const updatedUser = await this.users.updateProfile(
+        user,
+        {
+          ...(data.name !== undefined && { name: data.name }),
+          ...(data.email !== undefined && { e_mail: data.email }),
+          ...(data.phone !== undefined && { phone: data.phone })
+        },
+        transaction
+      );
+
+      return {
+        user: updatedUser,
+        roleId: client.id_role
+      };
+    });
+  }
   async createTechStaff(
     data: CreateManagedAccountData & { clientId: string }
   ): Promise<{ user: User; roleId: string; clientId: string }> {
